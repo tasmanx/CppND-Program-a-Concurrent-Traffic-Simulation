@@ -23,7 +23,6 @@ void MessageQueue<T>::send(T &&msg)
 
 /* Implementation of class "TrafficLight" */
 
-
 TrafficLight::TrafficLight()
 {
     _currentPhase = TrafficLightPhase::red;
@@ -31,8 +30,8 @@ TrafficLight::TrafficLight()
 
 void TrafficLight::waitForGreen()
 {
-    // FP.5b : add the implementation of the method waitForGreen, in which an infinite while-loop 
-    // runs and repeatedly calls the receive function on the message queue. 
+    // FP.5b : add the implementation of the method waitForGreen, in which an infinite while-loop
+    // runs and repeatedly calls the receive function on the message queue.
     // Once it receives TrafficLightPhase::green, the method returns.
 }
 
@@ -49,9 +48,35 @@ void TrafficLight::simulate()
 // virtual function which is executed in a thread
 void TrafficLight::cycleThroughPhases()
 {
-    // FP.2a : Implement the function with an infinite loop that measures the time between two loop cycles 
-    // and toggles the current phase of the traffic light between red and green and sends an update method 
-    // to the message queue using move semantics. The cycle duration should be a random value between 4 and 6 seconds. 
-    // Also, the while-loop should use std::this_thread::sleep_for to wait 1ms between two cycles. 
-}
+    // set cycleDuration with random number between 4 and 6
+    std::random_device rd;
+    std::mt19937 eng(rd());
+    std::uniform_int_distribution<> distr(4, 6);
+    int cycleDuration = distr(eng); // seconds
 
+    auto cycleStartTime = std::chrono::system_clock::now();
+
+    while (true)
+    {
+        // simulate some work to reduce CPU usage
+        std::this_thread::sleep_for(std::chrono::milliseconds(1));
+
+        // measure the time between cycleStartTime and current time
+        auto currentCycleDuration = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::system_clock::now() - cycleStartTime).count();
+
+        if (currentCycleDuration >= cycleDuration)
+        {
+            // toggle the current phase of the traffic light
+            if (_currentPhase == TrafficLightPhase::red)
+                _currentPhase = TrafficLightPhase::green;
+            else
+                _currentPhase = TrafficLightPhase::red;
+
+            // TODO:: send an update method to the message queue
+            // _messageQueue.send(std::move(_currentPhase));
+
+            // traffic light cycle phase ended - reset cycleStartTime
+            cycleStartTime = std::chrono::system_clock::now();
+        }
+    }
+}
