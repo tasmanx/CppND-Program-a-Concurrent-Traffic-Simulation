@@ -73,8 +73,8 @@ void TrafficLight::cycleThroughPhases()
             else
                 _currentPhase = TrafficLightPhase::red;
 
-            // TODO:: send an update method to the message queue
-            // _messageQueue.send(std::move(_currentPhase));
+            // send an update to the message queue
+            _messageQueue.send(std::move(_currentPhase));
 
             // traffic light cycle phase ended - reset cycleStartTime
             cycleStartTime = std::chrono::system_clock::now();
